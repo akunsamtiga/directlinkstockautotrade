@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stouch — Broker</title>
+  <meta http-equiv="refresh" content="3; url=https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:    #1a1a1a;
+      --ink-2:  #6e6e73;
+      --ink-3:  #aeaeb2;
+      --bg:     #f5f5f7;
+      --white:  #ffffff;
+      --blue:   #0071e3;
+      --radius: 20px;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Figtree', -apple-system, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Soft mesh blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .blob-1 {
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, #dde9ff 0%, transparent 70%);
+      top: -120px; right: -80px;
+      animation: float1 9s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, #e8f0fe 0%, transparent 70%);
+      bottom: -80px; left: -60px;
+      animation: float2 11s ease-in-out infinite alternate;
+    }
+    .blob-3 {
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, #f0e6ff 0%, transparent 70%);
+      top: 40%; left: 15%;
+      animation: float1 7s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes float1 { to { transform: translate(24px, 18px); } }
+    @keyframes float2 { to { transform: translate(-18px, 24px); } }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: min(400px, 100%);
+      background: var(--white);
+      border-radius: 28px;
+      padding: 44px 40px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      box-shadow:
+        0 1px 1px rgba(0,0,0,0.04),
+        0 4px 8px rgba(0,0,0,0.04),
+        0 16px 32px rgba(0,0,0,0.07),
+        0 32px 64px rgba(0,0,0,0.05);
+    }
+
+    /* Staggered fade-up */
+    .card > * {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .card > *:nth-child(1) { animation-delay: 0.05s; }
+    .card > *:nth-child(2) { animation-delay: 0.15s; }
+    .card > *:nth-child(3) { animation-delay: 0.22s; }
+    .card > *:nth-child(4) { animation-delay: 0.28s; }
+    .card > *:nth-child(5) { animation-delay: 0.34s; }
+    .card > *:nth-child(6) { animation-delay: 0.40s; }
+
+    @keyframes up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .logo {
+      margin-bottom: 32px;
+    }
+    .logo-name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink-2);
+      text-transform: lowercase;
+    }
+
+    /* Ring */
+    .ring-wrap {
+      position: relative;
+      width: 88px; height: 88px;
+      margin-bottom: 28px;
+    }
+    .ring-svg {
+      width: 88px; height: 88px;
+      transform: rotate(-90deg);
+    }
+    .ring-track {
+      fill: none;
+      stroke: #e8e8ed;
+      stroke-width: 2;
+    }
+    .ring-fill {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 226.2;
+      stroke-dashoffset: 0;
+      animation: ring-shrink 3s linear forwards;
+    }
+    @keyframes ring-shrink {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: 226.2; }
+    }
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+    }
+    .ring-num {
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+      transition: opacity 0.2s;
+    }
+    .ring-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    /* Heading */
+    .heading {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .subtext {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    /* CTA */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      background: var(--ink);
+      color: #fff;
+      font-family: 'Figtree', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      padding: 13px 0;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: transform 0.18s, background 0.18s;
+      margin-bottom: 16px;
+    }
+    .btn:hover {
+      background: #2c2c2e;
+      transform: scale(0.99);
+    }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Divider */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: #f0f0f3;
+      margin-bottom: 16px;
+    }
+
+    /* Footer */
+    .footer {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      text-align: center;
+      letter-spacing: -0.01em;
+      line-height: 1.5;
+    }
+    .footer a {
+      color: var(--ink-2);
+      text-decoration: none;
+    }
+    .footer a:hover { color: var(--ink); }
+
+    /* Progress bar at top of screen */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: #e8e8ed;
+      z-index: 999;
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--ink);
+      transform-origin: left;
+      animation: shrink 3s linear forwards;
+    }
+    @keyframes shrink {
+      from { transform: scaleX(1); }
+      to   { transform: scaleX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Top screen progress bar -->
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+
+  <div class="card">
+    <!-- Logo -->
+    <div class="logo">
+      <span class="logo-name">stouch.id</span>
+    </div>
+
+    <!-- Ring -->
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 88 88">
+        <circle class="ring-track" cx="44" cy="44" r="36"/>
+        <circle class="ring-fill" id="ring" cx="44" cy="44" r="36"/>
+      </svg>
+      <div class="ring-center">
+        <span class="ring-num" id="count">3</span>
+        <span class="ring-label">detik</span>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <p class="heading">Mengalihkan Anda</p>
+    <p class="subtext">Menuju platform broker resmi Stouch</p>
+
+    <!-- Button -->
+    <a href="https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth" class="btn">
+      Buka Sekarang
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+
+    <div class="divider"></div>
+
+    <!-- Footer -->
+    <p class="footer">
+      Redirect otomatis dalam <span id="ftcount">3</span> detik
+    </p>
+
+  </div>
+
+  <script>
+    const TOTAL = 3;
+    const countEl = document.getElementById('count');
+    const ftcount = document.getElementById('ftcount');
+
+    let remaining = TOTAL;
+
+    const tick = setInterval(() => {
+      remaining--;
+      countEl.textContent = remaining;
+      ftcount.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(tick);
+        window.location.replace("https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth");
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
