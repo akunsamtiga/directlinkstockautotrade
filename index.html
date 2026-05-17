@@ -3,216 +3,415 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Stouch — Broker</title>
-  <meta http-equiv="refresh" content="3; url=https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth"/>
+  <title>Link StockAutoTrade</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink:    #1a1a1a;
-      --ink-2:  #6e6e73;
-      --ink-3:  #aeaeb2;
-      --bg:     #f5f5f7;
-      --white:  #ffffff;
-      --blue:   #0071e3;
-      --radius: 20px;
+      --ink:     #0d0d0f;
+      --ink-2:   #5a5a64;
+      --ink-3:   #a8a8b0;
+      --bg:      #f7f7f8;
+      --white:   #ffffff;
+      --gold:    #c9973a;
+      --gold-lt: #f5e6c8;
+      --green:   #1a8a50;
+      --green-lt:#d4f0e1;
     }
 
     body {
       background: var(--bg);
-      font-family: 'Figtree', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       min-height: 100dvh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 16px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    /* Soft mesh blobs */
-    .blob {
+    /* Background texture */
+    body::before {
+      content: '';
       position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 600px 400px at 80% 10%, rgba(201,151,58,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 500px at 10% 85%, rgba(26,138,80,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 300px 300px at 50% 50%, rgba(255,255,255,0.5) 0%, transparent 80%);
       pointer-events: none;
-      opacity: 0.55;
+      z-index: 0;
     }
-    .blob-1 {
-      width: 480px; height: 480px;
-      background: radial-gradient(circle, #dde9ff 0%, transparent 70%);
-      top: -120px; right: -80px;
-      animation: float1 9s ease-in-out infinite alternate;
+
+    /* Grid lines */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
     }
-    .blob-2 {
-      width: 360px; height: 360px;
-      background: radial-gradient(circle, #e8f0fe 0%, transparent 70%);
-      bottom: -80px; left: -60px;
-      animation: float2 11s ease-in-out infinite alternate;
-    }
-    .blob-3 {
-      width: 240px; height: 240px;
-      background: radial-gradient(circle, #f0e6ff 0%, transparent 70%);
-      top: 40%; left: 15%;
-      animation: float1 7s ease-in-out infinite alternate-reverse;
-    }
-    @keyframes float1 { to { transform: translate(24px, 18px); } }
-    @keyframes float2 { to { transform: translate(-18px, 24px); } }
 
     /* Card */
     .card {
       position: relative;
       z-index: 10;
-      width: min(400px, 100%);
+      width: 100%;
+      max-width: 420px;
       background: var(--white);
-      border-radius: 28px;
-      padding: 44px 40px 36px;
+      border-radius: 24px;
+      padding: clamp(28px, 6vw, 40px) clamp(20px, 5vw, 36px) clamp(24px, 5vw, 36px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
       box-shadow:
-        0 1px 1px rgba(0,0,0,0.04),
+        0 0 0 1px rgba(0,0,0,0.06),
         0 4px 8px rgba(0,0,0,0.04),
-        0 16px 32px rgba(0,0,0,0.07),
-        0 32px 64px rgba(0,0,0,0.05);
+        0 20px 48px rgba(0,0,0,0.08),
+        0 40px 80px rgba(0,0,0,0.05);
+      animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    /* Staggered fade-up */
-    .card > * {
-      opacity: 0;
-      transform: translateY(10px);
-      animation: up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    .card > *:nth-child(1) { animation-delay: 0.05s; }
-    .card > *:nth-child(2) { animation-delay: 0.15s; }
-    .card > *:nth-child(3) { animation-delay: 0.22s; }
-    .card > *:nth-child(4) { animation-delay: 0.28s; }
-    .card > *:nth-child(5) { animation-delay: 0.34s; }
-    .card > *:nth-child(6) { animation-delay: 0.40s; }
-
-    @keyframes up {
-      to { opacity: 1; transform: translateY(0); }
+    @media (max-width: 380px) {
+      .card { border-radius: 18px; }
     }
 
-    /* Logo */
-    .logo {
-      margin-bottom: 32px;
-    }
-    .logo-name {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      color: var(--ink-2);
-      text-transform: lowercase;
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Ring */
-    .ring-wrap {
-      position: relative;
-      width: 88px; height: 88px;
-      margin-bottom: 28px;
-    }
-    .ring-svg {
-      width: 88px; height: 88px;
-      transform: rotate(-90deg);
-    }
-    .ring-track {
-      fill: none;
-      stroke: #e8e8ed;
-      stroke-width: 2;
-    }
-    .ring-fill {
-      fill: none;
-      stroke: var(--ink);
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-dasharray: 226.2;
-      stroke-dashoffset: 0;
-      animation: ring-shrink 3s linear forwards;
-    }
-    @keyframes ring-shrink {
-      from { stroke-dashoffset: 0; }
-      to   { stroke-dashoffset: 226.2; }
-    }
-    .ring-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
+    /* Badge */
+    .badge {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 1px;
-    }
-    .ring-num {
-      font-size: 28px;
-      font-weight: 300;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-      line-height: 1;
-      transition: opacity 0.2s;
-    }
-    .ring-label {
-      font-size: 10px;
-      font-weight: 500;
+      gap: 5px;
+      background: var(--green-lt);
+      border: 1px solid rgba(26,138,80,0.25);
+      border-radius: 100px;
+      padding: 4px 12px 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
       letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #136638;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .badge::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0) 20%,
+        rgba(255,255,255,0.75) 50%,
+        rgba(255,255,255,0) 80%,
+        transparent 100%
+      );
+      animation: shimmer 2.2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%   { left: -100%; }
+      60%  { left: 150%; }
+      100% { left: 150%; }
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* Logo image */
+    .logo-img {
+      width: clamp(72px, 20vw, 96px);
+      height: clamp(72px, 20vw, 96px);
+      object-fit: contain;
+      margin-bottom: 20px;
+      animation: fadeUp 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+      border-radius: 20px;
+    }
+
+    /* Heading */
+    .eyebrow {
+      font-size: clamp(10px, 2.5vw, 11px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+      animation: fadeUp 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 6vw, 28px);
+      font-style: italic;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      animation: fadeUp 0.5s 0.25s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .subtext {
+      font-size: clamp(12px, 3.2vw, 13.5px);
+      font-weight: 400;
+      color: var(--ink-2);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      max-width: 100%;
+      animation: fadeUp 0.5s 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    /* Stats row */
+    .stats {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      background: var(--bg);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      border: 1px solid rgba(0,0,0,0.06);
+      animation: fadeUp 0.5s 0.33s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .stat {
+      flex: 1;
+      padding: clamp(10px, 3vw, 14px) 8px;
+      text-align: center;
+      position: relative;
+    }
+    .stat + .stat::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 10px; bottom: 10px;
+      width: 1px;
+      background: rgba(0,0,0,0.07);
+    }
+    .stat-val {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(16px, 4.5vw, 19px);
+      color: var(--ink);
+      display: block;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .stat-label {
+      font-size: clamp(9px, 2.2vw, 10px);
+      font-weight: 500;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--ink-3);
     }
 
-    /* Heading */
-    .heading {
-      font-size: 22px;
-      font-weight: 500;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-      text-align: center;
-      line-height: 1.25;
-      margin-bottom: 8px;
-    }
-    .subtext {
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--ink-2);
-      letter-spacing: -0.01em;
-      text-align: center;
-      margin-bottom: 28px;
+    /* Buttons */
+    .btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      animation: fadeUp 0.5s 0.38s cubic-bezier(0.22,1,0.36,1) both;
     }
 
-    /* CTA */
     .btn {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 10px;
       width: 100%;
-      background: var(--ink);
-      color: #fff;
-      font-family: 'Figtree', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      padding: 13px 0;
       border-radius: 14px;
       text-decoration: none;
-      transition: transform 0.18s, background 0.18s;
-      margin-bottom: 16px;
+      padding: clamp(12px, 3.5vw, 15px) clamp(14px, 4vw, 18px);
+      font-family: 'DM Sans', sans-serif;
+      transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s, background 0.22s;
+      cursor: pointer;
+      border: none;
+      position: relative;
+      overflow: hidden;
     }
-    .btn:hover {
-      background: #2c2c2e;
-      transform: scale(0.99);
+
+    /* Shimmer sweep */
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0) 20%,
+        rgba(255,255,255,0.18) 50%,
+        rgba(255,255,255,0) 80%,
+        transparent 100%
+      );
+      transform: skewX(-15deg);
+      animation: btnShimmer 3s ease-in-out infinite;
+      pointer-events: none;
     }
-    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    @keyframes btnShimmer {
+      0%   { left: -80%; }
+      55%  { left: 130%; }
+      100% { left: 130%; }
+    }
+
+    /* Ripple on click */
+    .btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.55s linear;
+      background: rgba(255,255,255,0.25);
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    .btn:active { transform: scale(0.97) !important; }
+
+    /* Primary — Trade */
+    .btn-primary {
+      background: linear-gradient(120deg, #0d0d0f, #2a2a32, #0d0d0f);
+      background-size: 200% 100%;
+      color: #fff;
+      box-shadow:
+        0 4px 16px rgba(13,13,15,0.22),
+        0 1px 2px rgba(13,13,15,0.1),
+        0 0 0 0 rgba(13,13,15,0);
+      animation: gradientSlide 4s ease infinite;
+    }
+    @keyframes gradientSlide {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 12px 32px rgba(13,13,15,0.35),
+        0 0 0 3px rgba(13,13,15,0.10);
+    }
+    .btn-primary::before {
+      background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0) 20%,
+        rgba(255,255,255,0.15) 50%,
+        rgba(255,255,255,0) 80%,
+        transparent 100%
+      );
+    }
+
+    /* Glow pulse ring around primary btn */
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 17px;
+      background: transparent;
+      border: 2px solid rgba(13,13,15,0.18);
+      animation: glowRing 2.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes glowRing {
+      0%, 100% { opacity: 0; transform: scale(1); }
+      50%       { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* Secondary — Download */
+    .btn-secondary {
+      background: #fdf9ee;
+      color: var(--ink);
+      border: 1.5px solid rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s, border-color 0.22s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(26,138,80,0.35);
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 24px rgba(0,0,0,0.10),
+        0 0 0 3px rgba(26,138,80,0.08);
+    }
+    .btn-secondary::before {
+      background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0) 20%,
+        rgba(255,255,255,0.65) 50%,
+        rgba(255,255,255,0) 80%,
+        transparent 100%
+      );
+      animation-delay: 1.5s;
+    }
+    .btn-secondary .ripple {
+      background: rgba(26,138,80,0.10);
+    }
+
+    .btn-icon {
+      width: clamp(34px, 9vw, 38px);
+      height: clamp(34px, 9vw, 38px);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-primary .btn-icon { background: rgba(255,255,255,0.12); }
+    .btn-secondary .btn-icon { background: var(--bg); }
+
+    .btn-body { flex: 1; text-align: left; min-width: 0; }
+    .btn-title {
+      font-size: clamp(13px, 3.5vw, 14px);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: block;
+      line-height: 1;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-desc {
+      font-size: clamp(10px, 2.8vw, 11.5px);
+      font-weight: 400;
+      opacity: 0.6;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-arrow {
+      opacity: 0.4;
+      flex-shrink: 0;
+      transition: transform 0.18s, opacity 0.18s;
+    }
+    .btn:hover .btn-arrow { transform: translateX(3px); opacity: 0.7; }
 
     /* Divider */
     .divider {
       width: 100%;
       height: 1px;
-      background: #f0f0f3;
-      margin-bottom: 16px;
+      background: rgba(0,0,0,0.06);
+      margin: 24px 0 20px;
+      animation: fadeUp 0.5s 0.43s cubic-bezier(0.22,1,0.36,1) both;
     }
 
     /* Footer */
@@ -220,104 +419,112 @@
       font-size: 11.5px;
       color: var(--ink-3);
       text-align: center;
-      letter-spacing: -0.01em;
-      line-height: 1.5;
+      line-height: 1.6;
+      animation: fadeUp 0.5s 0.45s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .footer a {
-      color: var(--ink-2);
-      text-decoration: none;
-    }
-    .footer a:hover { color: var(--ink); }
+    .footer strong { color: var(--ink-2); font-weight: 500; }
 
-    /* Progress bar at top of screen */
-    .progress-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: #e8e8ed;
-      z-index: 999;
-      opacity: 1 !important;
-      transform: none !important;
-      animation: none !important;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 100%;
-      background: var(--ink);
-      transform-origin: left;
-      animation: shrink 3s linear forwards;
-    }
-    @keyframes shrink {
-      from { transform: scaleX(1); }
-      to   { transform: scaleX(0); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-
-  <!-- Top screen progress bar -->
-  <div class="progress-bar">
-    <div class="progress-fill"></div>
-  </div>
 
   <div class="card">
-    <!-- Logo -->
-    <div class="logo">
-      <span class="logo-name">stouch.id</span>
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Online
     </div>
 
-    <!-- Ring -->
-    <div class="ring-wrap">
-      <svg class="ring-svg" viewBox="0 0 88 88">
-        <circle class="ring-track" cx="44" cy="44" r="36"/>
-        <circle class="ring-fill" id="ring" cx="44" cy="44" r="36"/>
-      </svg>
-      <div class="ring-center">
-        <span class="ring-num" id="count">3</span>
-        <span class="ring-label">detik</span>
+    <img src="./logo.png" alt="StockAutoTrade Logo" class="logo-img" onerror="this.style.display='none'"/>
+
+    <p class="eyebrow">Gratis</p>
+    <h1 class="heading">StockAutoTrade</h1>
+    <p class="subtext">adalah aplikasi trading otomatis berbasis AI untuk membantu analisis dan entry trading di Stockity. Mulai sekarang atau unduh aplikasinya.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-val">24/7</span>
+        <span class="stat-label">Auto Trade</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">Akurat</span>
+        <span class="stat-label">Analisis</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">Live</span>
+        <span class="stat-label">Real-time</span>
       </div>
     </div>
 
-    <!-- Text -->
-    <p class="heading">Mengalihkan Anda</p>
-    <p class="subtext">Menuju platform broker resmi Stouch</p>
+    <div class="btns">
 
-    <!-- Button -->
-    <a href="https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth" class="btn">
-      Buka Sekarang
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
+      <!-- CTA 1: Open Platform -->
+      <a href="https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth" class="btn btn-primary">
+        <span class="btn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </span>
+        <span class="btn-body">
+          <span class="btn-title">Buka Platform Trading</span>
+          <span class="btn-desc">Broker resmi · Daftar & mulai gratis</span>
+        </span>
+        <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+      <!-- CTA 2: Download App -->
+      <a href="./StockAutoTrade.apk" class="btn btn-secondary" download>
+        <span class="btn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="10" x2="12" y2="16"/>
+            <polyline points="9 13 12 16 15 13"/>
+          </svg>
+        </span>
+        <span class="btn-body">
+          <span class="btn-title">Download Aplikasi</span>
+          <span class="btn-desc">Android APK · StockAutoTrade</span>
+        </span>
+        <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+    </div>
 
     <div class="divider"></div>
 
-    <!-- Footer -->
     <p class="footer">
-      Redirect otomatis dalam <span id="ftcount">3</span> detik
+      &copy; <span id="year"></span> <strong>StockAutoTrade</strong> · All rights reserved
     </p>
 
   </div>
 
-  <script>
-    const TOTAL = 3;
-    const countEl = document.getElementById('count');
-    const ftcount = document.getElementById('ftcount');
-
-    let remaining = TOTAL;
-
-    const tick = setInterval(() => {
-      remaining--;
-      countEl.textContent = remaining;
-      ftcount.textContent = remaining;
-      if (remaining <= 0) {
-        clearInterval(tick);
-        window.location.replace("https://stockity-r3.com/?a=37051c9cbcfe&t=0#auth");
-      }
-    }, 1000);
-  </script>
 </body>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Ripple effect on buttons
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        left: ${e.clientX - rect.left - size / 2}px;
+        top: ${e.clientY - rect.top - size / 2}px;
+      `;
+      this.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
+  });
+</script>
 </html>
